@@ -1,14 +1,31 @@
 {
-  "name": "@erc6900/reference-implementation",
-  "version": "0.8.0-rc.5",
+  "name": "erc6900-reference-implementation",
+  "description": "Reference implementation for [ERC-6900](https://eips.ethereum.org/EIPS/eip-6900).",
+  "version": "0.8.0-rc.6",
   "devDependencies": {
     "pnpm": "^8.7.5",
     "solhint": "^3.6.2"
   },
+  "files": [
+    "/src/**/*.sol"
+  ],
   "scripts": {
     "lint": "pnpm lint:src && pnpm lint:test && pnpm lint:script",
     "lint:src": "solhint --max-warnings 0 -c .solhint-src.json './src/**/*.sol'",
     "lint:test": "solhint --max-warnings 0 -c .solhint-test.json './test/**/*.sol'",
     "lint:script": "solhint --max-warnings 0 -c .solhint-script.json './script/**/*.sol'"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erc6900/reference-implementation.git"
+  },
+  "keywords": [
+    "erc6900"
+  ],
+  "author": "ERC6900 Community",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/erc6900/reference-implementation/issues"
+  },
+  "homepage": "https://github.com/erc6900/reference-implementation#readme"
 }
