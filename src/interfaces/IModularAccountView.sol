@@ -6,7 +6,7 @@ import {HookConfig, ModuleEntity, ValidationFlags} from "../interfaces/IModularA
 /// @dev Represents data associated with a specific function selector.
 struct ExecutionDataView {
     // The module that implements this execution function.
-    // If this is a native function, the address must remain address(0).
+    // If this is a native function, the address must be the address of the account.
     address module;
     // Whether or not the function needs runtime validation, or can be called by anyone. The function can still be
     // state changing if this flag is set to true.
