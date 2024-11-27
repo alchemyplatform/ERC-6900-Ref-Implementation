@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {HookConfig, ModuleEntity} from "../interfaces/IModularAccount.sol";
+import {HookConfig, ModuleEntity, ValidationFlags} from "../interfaces/IModularAccount.sol";
 
 /// @dev Represents data associated with a specific function selector.
 struct ExecutionDataView {
@@ -20,12 +20,12 @@ struct ExecutionDataView {
 }
 
 struct ValidationDataView {
-    // Whether or not this validation function can be used as a global validation function.
-    bool isGlobal;
-    // Whether or not this validation function is a signature validator.
-    bool isSignatureValidation;
-    // Whether or not this validation function is a user operation validation function.
-    bool isUserOpValidation;
+    // ValidationFlags layout:
+    // 0b00000___ // unused
+    // 0b_____A__ // isGlobal
+    // 0b______B_ // isSignatureValidation
+    // 0b_______C // isUserOpValidation
+    ValidationFlags validationFlags;
     // The validation hooks for this validation function.
     HookConfig[] validationHooks;
     // Execution hooks to run with this validation function.

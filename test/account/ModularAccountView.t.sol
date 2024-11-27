@@ -3,16 +3,18 @@ pragma solidity ^0.8.20;
 
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
+import {HookConfig, IModularAccount, ValidationFlags} from "../../src/interfaces/IModularAccount.sol";
+import {ExecutionDataView, ValidationDataView} from "../../src/interfaces/IModularAccountView.sol";
 import {HookConfigLib} from "../../src/libraries/HookConfigLib.sol";
 import {ModuleEntity, ModuleEntityLib} from "../../src/libraries/ModuleEntityLib.sol";
-
-import {HookConfig, IModularAccount} from "../../src/interfaces/IModularAccount.sol";
-import {ExecutionDataView, ValidationDataView} from "../../src/interfaces/IModularAccountView.sol";
+import {ValidationConfigLib} from "../../src/libraries/ValidationConfigLib.sol";
 
 import {ComprehensiveModule} from "../mocks/modules/ComprehensiveModule.sol";
 import {CustomValidationTestBase} from "../utils/CustomValidationTestBase.sol";
 
 contract ModularAccountViewTest is CustomValidationTestBase {
+    using ValidationConfigLib for ValidationFlags;
+
     ComprehensiveModule public comprehensiveModule;
 
     event ReceivedCall(bytes msgData, uint256 msgValue);
@@ -100,9 +102,9 @@ contract ModularAccountViewTest is CustomValidationTestBase {
         ValidationDataView memory data = account1.getValidationData(comprehensiveModuleValidation);
         bytes4[] memory selectors = data.selectors;
 
-        assertTrue(data.isGlobal);
-        assertTrue(data.isSignatureValidation);
-        assertTrue(data.isUserOpValidation);
+        assertTrue(data.validationFlags.isGlobal());
+        assertTrue(data.validationFlags.isSignatureValidation());
+        assertTrue(data.validationFlags.isUserOpValidation());
         assertEq(data.validationHooks.length, 2);
         assertEq(
             HookConfig.unwrap(data.validationHooks[0]),

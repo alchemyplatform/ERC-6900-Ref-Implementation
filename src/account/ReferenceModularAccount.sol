@@ -5,7 +5,6 @@ import {BaseAccount} from "@eth-infinitism/account-abstraction/core/BaseAccount.
 import {IAccountExecute} from "@eth-infinitism/account-abstraction/interfaces/IAccountExecute.sol";
 import {IEntryPoint} from "@eth-infinitism/account-abstraction/interfaces/IEntryPoint.sol";
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
-
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
@@ -16,7 +15,13 @@ import {DIRECT_CALL_VALIDATION_ENTITY_ID} from "../helpers/Constants.sol";
 import {_coalescePreValidation, _coalesceValidation} from "../helpers/ValidationResHelpers.sol";
 import {IExecutionHookModule} from "../interfaces/IExecutionHookModule.sol";
 import {ExecutionManifest} from "../interfaces/IExecutionModule.sol";
-import {Call, IModularAccount, ModuleEntity, ValidationConfig} from "../interfaces/IModularAccount.sol";
+import {
+    Call,
+    IModularAccount,
+    ModuleEntity,
+    ValidationConfig,
+    ValidationFlags
+} from "../interfaces/IModularAccount.sol";
 import {IValidationHookModule} from "../interfaces/IValidationHookModule.sol";
 import {IValidationModule} from "../interfaces/IValidationModule.sol";
 import {HookConfig, HookConfigLib} from "../libraries/HookConfigLib.sol";
@@ -43,7 +48,7 @@ contract ReferenceModularAccount is
 {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using ModuleEntityLib for ModuleEntity;
-    using ValidationConfigLib for ValidationConfig;
+    using ValidationConfigLib for ValidationFlags;
     using HookConfigLib for HookConfig;
     using SparseCalldataSegmentLib for bytes;
 
@@ -598,7 +603,7 @@ contract ReferenceModularAccount is
 
         (address module, uint32 entityId) = userOpValidationFunction.unpack();
 
-        if (!_storage.validationStorage[userOpValidationFunction].isUserOpValidation) {
+        if (!_storage.validationStorage[userOpValidationFunction].validationFlags.isUserOpValidation()) {
             revert UserOpValidationInvalid(module, entityId);
         }
 
@@ -633,7 +638,7 @@ contract ReferenceModularAccount is
         AccountStorage storage _storage = getAccountStorage();
 
         (address module, uint32 entityId) = sigValidation.unpack();
-        if (!_storage.validationStorage[sigValidation].isSignatureValidation) {
+        if (!_storage.validationStorage[sigValidation].validationFlags.isSignatureValidation()) {
             revert SignatureValidationInvalid(module, entityId);
         }
 
@@ -660,7 +665,7 @@ contract ReferenceModularAccount is
     }
 
     function _isValidationGlobal(ModuleEntity validationFunction) internal view virtual returns (bool) {
-        return getAccountStorage().validationStorage[validationFunction].isGlobal;
+        return getAccountStorage().validationStorage[validationFunction].validationFlags.isGlobal();
     }
 
     function _checkIfValidationAppliesCallData(

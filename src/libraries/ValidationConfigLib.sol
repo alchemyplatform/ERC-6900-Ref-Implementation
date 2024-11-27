@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {ModuleEntity, ValidationConfig} from "../interfaces/IModularAccount.sol";
-
-// Validation flags layout:
-// 0b00000___ // unused
-// 0b_____A__ // isGlobal
-// 0b______B_ // isSignatureValidation
-// 0b_______C // isUserOpValidation
-type ValidationFlags is uint8;
+import {ModuleEntity, ValidationConfig, ValidationFlags} from "../interfaces/IModularAccount.sol";
 
 // Validation config is a packed representation of a validation function and flags for its configuration.
 // Layout:
 // 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA________________________ // Address
 // 0x________________________________________BBBBBBBB________________ // Entity ID
-// 0x________________________________________________CC______________ // validation flags
+// 0x________________________________________________CC______________ // ValidationFlags
 // 0x__________________________________________________00000000000000 // unused
 
-// Validation flags layout:
+// ValidationFlags layout:
 // 0b00000___ // unused
 // 0b_____A__ // isGlobal
 // 0b______B_ // isSignatureValidation
