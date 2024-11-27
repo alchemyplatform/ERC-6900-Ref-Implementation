@@ -15,10 +15,11 @@ type ValidationConfig is bytes25;
 // Layout:
 // 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA________________________ // Address
 // 0x________________________________________BBBBBBBB________________ // Entity ID
-// 0x________________________________________________CC______________ // validation flags
+// 0x________________________________________________CC______________ // ValidationFlags
 // 0x__________________________________________________00000000000000 // unused
-//
-// Validation flags layout:
+
+type ValidationFlags is uint8;
+// ValidationFlags layout:
 // 0b00000___ // unused
 // 0b_____A__ // isGlobal
 // 0b______B_ // isSignatureValidation

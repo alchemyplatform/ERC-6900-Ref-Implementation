@@ -8,7 +8,13 @@ import {collectReturnData} from "../helpers/CollectReturnData.sol";
 import {MAX_VALIDATION_ASSOC_HOOKS} from "../helpers/Constants.sol";
 import {IExecutionHookModule} from "../interfaces/IExecutionHookModule.sol";
 import {ExecutionManifest, ManifestExecutionHook} from "../interfaces/IExecutionModule.sol";
-import {HookConfig, IModularAccount, ModuleEntity, ValidationConfig} from "../interfaces/IModularAccount.sol";
+import {
+    HookConfig,
+    IModularAccount,
+    ModuleEntity,
+    ValidationConfig,
+    ValidationFlags
+} from "../interfaces/IModularAccount.sol";
 import {IModule} from "../interfaces/IModule.sol";
 import {IValidationHookModule} from "../interfaces/IValidationHookModule.sol";
 import {IValidationModule} from "../interfaces/IValidationModule.sol";
@@ -94,10 +100,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
 
     function _removeValidationFunction(ModuleEntity validationFunction) internal {
         ValidationStorage storage _validationStorage = getAccountStorage().validationStorage[validationFunction];
-
-        _validationStorage.isGlobal = false;
-        _validationStorage.isSignatureValidation = false;
-        _validationStorage.isUserOpValidation = false;
+        _validationStorage.validationFlags = ValidationFlags.wrap(0);
     }
 
     function _addExecHooks(EnumerableSet.Bytes32Set storage hooks, HookConfig hookConfig) internal {
@@ -226,7 +229,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
     ) internal {
         ValidationStorage storage _validationStorage =
             getAccountStorage().validationStorage[validationConfig.moduleEntity()];
-        ModuleEntity moduleEntity = validationConfig.moduleEntity();
+        (ModuleEntity moduleEntity, ValidationFlags validationFlags) = validationConfig.unpack();
 
         for (uint256 i = 0; i < hooks.length; ++i) {
             HookConfig hookConfig = HookConfig.wrap(bytes25(hooks[i][:25]));
@@ -257,9 +260,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
             }
         }
 
-        _validationStorage.isGlobal = validationConfig.isGlobal();
-        _validationStorage.isSignatureValidation = validationConfig.isSignatureValidation();
-        _validationStorage.isUserOpValidation = validationConfig.isUserOpValidation();
+        _validationStorage.validationFlags = validationFlags;
 
         _onInstall(validationConfig.module(), installData, type(IValidationModule).interfaceId);
         emit ValidationInstalled(validationConfig.module(), validationConfig.entityId());
