@@ -95,7 +95,6 @@ interface IModularAccount {
 
     /// @notice Installs a validation function across a set of execution selectors, and optionally mark it as a
     /// global validation function.
-    /// @dev This does not validate anything against the manifest - the caller must ensure validity.
     /// @param validationConfig The validation function to install, along with configuration flags.
     /// @param selectors The selectors to install the validation function for.
     /// @param installData Optional data to be used by the account to handle the initial validation setup. Data
