@@ -1,6 +1,6 @@
 {
   "name": "@erc6900/reference-implementation",
-  "version": "0.8.0-rc.7",
+  "version": "0.8.0",
   "devDependencies": {
     "pnpm": "^8.7.5",
     "solhint": "^3.6.2"
