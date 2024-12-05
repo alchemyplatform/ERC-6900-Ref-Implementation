@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {IModule} from "./IModule.sol";
 
 struct ManifestExecutionFunction {
-    // The selector to install
+    // The selector to install.
     bytes4 executionSelector;
     // If true, the function won't need runtime validation, and can be called by anyone.
     bool skipRuntimeValidation;
