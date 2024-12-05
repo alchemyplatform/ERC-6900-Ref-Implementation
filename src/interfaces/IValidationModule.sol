@@ -18,7 +18,7 @@ interface IValidationModule is IModule {
 
     /// @notice Run the runtime validation function specified by the `entityId`.
     /// @dev To indicate the entire call should revert, the function MUST revert.
-    /// @param account the account to validate for.
+    /// @param account The account to validate for.
     /// @param entityId An identifier that routes the call to different internal implementations, should there
     /// be more than one.
     /// @param sender The caller address.
@@ -36,12 +36,12 @@ interface IValidationModule is IModule {
 
     /// @notice Validates a signature using ERC-1271.
     /// @dev To indicate the entire call should revert, the function MUST revert.
-    /// @param account the account to validate for.
+    /// @param account The account to validate for.
     /// @param entityId An identifier that routes the call to different internal implementations, should there
     /// be more than one.
-    /// @param sender the address that sent the ERC-1271 request to the smart account
-    /// @param hash the hash of the ERC-1271 request
-    /// @param signature the signature of the ERC-1271 request
+    /// @param sender The address that sent the ERC-1271 request to the smart account.
+    /// @param hash The hash of the ERC-1271 request.
+    /// @param signature The signature of the ERC-1271 request.
     /// @return The ERC-1271 `MAGIC_VALUE` if the signature is valid, or 0xFFFFFFFF if invalid.
     function validateSignature(
         address account,

@@ -80,14 +80,13 @@ interface IModularAccount {
     /// @param module The module to install.
     /// @param manifest the manifest describing functions to install.
     /// @param installData Optional data to be used by the account to handle the initial execution setup. Data
-    /// encoding
-    /// is implementation-specific.
+    /// encoding is implementation-specific.
     function installExecution(address module, ExecutionManifest calldata manifest, bytes calldata installData)
         external;
 
     /// @notice Uninstall a module from the modular account.
     /// @param module The module to uninstall.
-    /// @param manifest the manifest describing functions to uninstall.
+    /// @param manifest The manifest describing functions to uninstall.
     /// @param uninstallData Optional data to be used by the account to handle the execution uninstallation. Data
     /// encoding is implementation-specific.
     function uninstallExecution(address module, ExecutionManifest calldata manifest, bytes calldata uninstallData)
@@ -113,8 +112,7 @@ interface IModularAccount {
     /// @param uninstallData Optional data to be used by the account to handle the validation uninstallation. Data
     /// encoding is implementation-specific.
     /// @param hookUninstallData Optional data to be used by the account to handle hook uninstallation. Data
-    /// encoding
-    /// is implementation-specific.
+    /// encoding is implementation-specific.
     function uninstallValidation(
         ModuleEntity validationFunction,
         bytes calldata uninstallData,
