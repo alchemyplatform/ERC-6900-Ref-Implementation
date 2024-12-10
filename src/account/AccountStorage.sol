@@ -33,7 +33,7 @@ struct ValidationStorage {
     ValidationFlags validationFlags;
     // The validation hooks for this validation function.
     HookConfig[] validationHooks;
-    // Execution hooks to run with this validation function.
+    // Execution hooks associated with this entity, to be run when this validation is used.
     EnumerableSet.Bytes32Set executionHooks;
     // The set of selectors that may be validated by this validation function.
     EnumerableSet.Bytes32Set selectors;

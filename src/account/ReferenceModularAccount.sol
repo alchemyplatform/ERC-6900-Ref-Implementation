@@ -89,13 +89,13 @@ contract ReferenceModularAccount is
     // Wraps execution of a native function with runtime validation and hooks
     // Used for upgradeTo, upgradeToAndCall, execute, executeBatch, installExecution, uninstallExecution
     modifier wrapNativeFunction() {
-        (PostExecToRun[] memory postValidatorExecHooks, PostExecToRun[] memory postSelectorExecHooks) =
+        (PostExecToRun[] memory postExecHooksForEntity, PostExecToRun[] memory postExecHooksForSelector) =
             _checkPermittedCallerAndAssociatedHooks();
 
         _;
 
-        _doCachedPostExecHooks(postSelectorExecHooks);
-        _doCachedPostExecHooks(postValidatorExecHooks);
+        _doCachedPostExecHooks(postExecHooksForSelector);
+        _doCachedPostExecHooks(postExecHooksForEntity);
     }
 
     constructor(IEntryPoint anEntryPoint) {
@@ -115,7 +115,7 @@ contract ReferenceModularAccount is
         if (execModule == address(0)) {
             revert UnrecognizedFunction(msg.sig);
         }
-        (PostExecToRun[] memory postValidatorExecHooks, PostExecToRun[] memory postSelectorExecHooks) =
+        (PostExecToRun[] memory postExecHooksForEntity, PostExecToRun[] memory postExecHooksForSelector) =
             _checkPermittedCallerAndAssociatedHooks();
 
         // execute the function, bubbling up any reverts
@@ -128,8 +128,8 @@ contract ReferenceModularAccount is
             }
         }
 
-        _doCachedPostExecHooks(postSelectorExecHooks);
-        _doCachedPostExecHooks(postValidatorExecHooks);
+        _doCachedPostExecHooks(postExecHooksForSelector);
+        _doCachedPostExecHooks(postExecHooksForEntity);
 
         return execReturnData;
     }
@@ -144,7 +144,7 @@ contract ReferenceModularAccount is
 
         ModuleEntity userOpValidationFunction = ModuleEntity.wrap(bytes24(userOp.signature[:24]));
 
-        PostExecToRun[] memory postValidatorExecHooks =
+        PostExecToRun[] memory postExecHooksForEntity =
             _doPreHooks(getAccountStorage().validationStorage[userOpValidationFunction].executionHooks, msg.data);
 
         (bool success, bytes memory result) = address(this).call(userOp.callData[4:]);
@@ -156,7 +156,7 @@ contract ReferenceModularAccount is
             }
         }
 
-        _doCachedPostExecHooks(postValidatorExecHooks);
+        _doCachedPostExecHooks(postExecHooksForEntity);
     }
 
     /// @inheritdoc IModularAccount
@@ -207,8 +207,8 @@ contract ReferenceModularAccount is
 
         _doRuntimeValidation(runtimeValidationFunction, data, authorization[25:]);
 
-        // If runtime validation passes, run exec hooks associated with the validator
-        PostExecToRun[] memory postValidatorExecHooks =
+        // If runtime validation passes, run exec hooks associated with the entity
+        PostExecToRun[] memory postExecHooksForEntity =
             _doPreHooks(getAccountStorage().validationStorage[runtimeValidationFunction].executionHooks, data);
 
         // Execute the call
@@ -220,7 +220,7 @@ contract ReferenceModularAccount is
             }
         }
 
-        _doCachedPostExecHooks(postValidatorExecHooks);
+        _doCachedPostExecHooks(postExecHooksForEntity);
 
         return returnData;
     }
@@ -365,7 +365,7 @@ contract ReferenceModularAccount is
             isGlobalValidation ? ValidationCheckingType.GLOBAL : ValidationCheckingType.SELECTOR
         );
 
-        // Check if there are execution hooks associated with the validator, and revert if the call isn't to
+        // Check if there are execution hooks associated with the entity, and revert if the call isn't to
         // `executeUserOp`
         // This check must be here because if context isn't passed, we can't tell in execution which hooks should
         // have ran
@@ -549,8 +549,8 @@ contract ReferenceModularAccount is
      *         directly call.
      *          - Yes: Continue
      *          - No: Revert, the caller is not allowed to call this selector
-     *      3. If there are runtime validation hooks associated with this caller-sig combination, run them.
-     *      4. Run the pre executionHooks associated with this caller-sig combination, and return the
+     *      3. If there are runtime validation hooks associated with this entity, run them.
+     *      4. Run the pre executionHooks associated with this entity, and return the
      *         post executionHooks to run later.
      */
     function _checkPermittedCallerAndAssociatedHooks()
@@ -558,7 +558,7 @@ contract ReferenceModularAccount is
         returns (PostExecToRun[] memory, PostExecToRun[] memory)
     {
         AccountStorage storage _storage = getAccountStorage();
-        PostExecToRun[] memory postValidatorExecutionHooks;
+        PostExecToRun[] memory postExecHooksForEntity;
 
         // We only need to handle execution hooks when the sender is not the entry point or the account itself,
         // and the selector isn't public.
@@ -582,16 +582,16 @@ contract ReferenceModularAccount is
                 _doPreRuntimeValidationHook(preRuntimeValidationHooks[i].moduleEntity(), msg.data, "");
             }
 
-            // Execution hooks associated with the validator
-            postValidatorExecutionHooks =
+            // Execution hooks associated with the entity
+            postExecHooksForEntity =
                 _doPreHooks(_storage.validationStorage[directCallValidationKey].executionHooks, msg.data);
         }
 
         // Exec hooks associated with the selector
-        PostExecToRun[] memory postSelectorExecutionHooks =
+        PostExecToRun[] memory postExecHooksForSelector =
             _doPreHooks(_storage.executionStorage[msg.sig].executionHooks, msg.data);
 
-        return (postValidatorExecutionHooks, postSelectorExecutionHooks);
+        return (postExecHooksForEntity, postExecHooksForSelector);
     }
 
     function _execUserOpValidation(
