@@ -92,7 +92,7 @@ contract SemiModularAccount is ReferenceModularAccount {
     }
 
     /// @inheritdoc IModularAccount
-    function accountId() external pure override returns (string memory) {
+    function accountId() external pure virtual override returns (string memory) {
         return "erc6900.reference-semi-modular-account.0.8.0";
     }
 
@@ -177,6 +177,7 @@ contract SemiModularAccount is ReferenceModularAccount {
     function _retrieveFallbackSignerUnchecked(SemiModularAccountStorage storage _storage)
         internal
         view
+        virtual
         returns (address)
     {
         address storageFallbackSigner = _storage.fallbackSigner;
