@@ -305,6 +305,7 @@ contract ReferenceModularAccount is
     function upgradeToAndCall(address newImplementation, bytes memory data)
         public
         payable
+        virtual
         override
         onlyProxy
         wrapNativeFunction
