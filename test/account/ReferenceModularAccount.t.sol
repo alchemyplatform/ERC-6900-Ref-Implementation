@@ -280,19 +280,6 @@ contract ReferenceModularAccountTest is AccountTestBase {
         });
     }
 
-    function test_installExecution_interfaceNotSupported() public {
-        vm.startPrank(address(entryPoint));
-
-        address badModule = address(1);
-        vm.expectRevert(
-            abi.encodeWithSelector(ModuleManagerInternals.InterfaceNotSupported.selector, address(badModule))
-        );
-
-        ExecutionManifest memory m;
-
-        account1.installExecution({module: address(badModule), manifest: m, moduleInstallData: "a"});
-    }
-
     function test_installExecution_alreadyInstalled() public {
         ExecutionManifest memory m = tokenReceiverModule.executionManifest();
 

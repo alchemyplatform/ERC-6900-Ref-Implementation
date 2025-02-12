@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {collectReturnData} from "../helpers/CollectReturnData.sol";
 import {MAX_VALIDATION_ASSOC_HOOKS} from "../helpers/Constants.sol";
-import {IExecutionHookModule} from "../interfaces/IExecutionHookModule.sol";
 import {ExecutionManifest, ManifestExecutionHook} from "../interfaces/IExecutionModule.sol";
 import {
     HookConfig,
@@ -16,8 +14,6 @@ import {
     ValidationFlags
 } from "../interfaces/IModularAccount.sol";
 import {IModule} from "../interfaces/IModule.sol";
-import {IValidationHookModule} from "../interfaces/IValidationHookModule.sol";
-import {IValidationModule} from "../interfaces/IValidationModule.sol";
 import {HookConfigLib} from "../libraries/HookConfigLib.sol";
 import {KnownSelectorsLib} from "../libraries/KnownSelectorsLib.sol";
 import {ModuleEntityLib} from "../libraries/ModuleEntityLib.sol";
@@ -152,7 +148,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
             _storage.supportedIfaces[manifest.interfaceIds[i]] += 1;
         }
 
-        _onInstall(module, moduleInstallData, type(IModule).interfaceId);
+        _onInstall(module, moduleInstallData);
 
         emit ExecutionInstalled(module, manifest);
     }
@@ -195,11 +191,8 @@ abstract contract ModuleManagerInternals is IModularAccount {
         emit ExecutionUninstalled(module, onUninstallSuccess, manifest);
     }
 
-    function _onInstall(address module, bytes calldata data, bytes4 interfaceId) internal {
+    function _onInstall(address module, bytes calldata data) internal {
         if (data.length > 0) {
-            if (!ERC165Checker.supportsInterface(module, interfaceId)) {
-                revert InterfaceNotSupported(module);
-            }
             // solhint-disable-next-line no-empty-blocks
             try IModule(module).onInstall(data) {}
             catch {
@@ -243,14 +236,14 @@ abstract contract ModuleManagerInternals is IModularAccount {
                     revert PreValidationHookLimitExceeded();
                 }
 
-                _onInstall(hookConfig.module(), hookData, type(IValidationHookModule).interfaceId);
+                _onInstall(hookConfig.module(), hookData);
 
                 continue;
             }
             // Hook is an execution hook
             _addExecHooks(_validationStorage.executionHooks, hookConfig);
 
-            _onInstall(hookConfig.module(), hookData, type(IExecutionHookModule).interfaceId);
+            _onInstall(hookConfig.module(), hookData);
         }
 
         for (uint256 i = 0; i < selectors.length; ++i) {
@@ -262,7 +255,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
 
         _validationStorage.validationFlags = validationFlags;
 
-        _onInstall(validationConfig.module(), installData, type(IValidationModule).interfaceId);
+        _onInstall(validationConfig.module(), installData);
         emit ValidationInstalled(validationConfig.module(), validationConfig.entityId());
     }
 
