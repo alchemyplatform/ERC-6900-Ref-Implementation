@@ -12,7 +12,7 @@ import {ReferenceModularAccount} from "../../src/account/ReferenceModularAccount
 import {ModuleEntityLib} from "../../src/libraries/ModuleEntityLib.sol";
 import {ValidationConfigLib} from "../../src/libraries/ValidationConfigLib.sol";
 
-import {IModularAccount, ModuleEntity} from "../../src/interfaces/IModularAccount.sol";
+import {IERC6900Account, ModuleEntity} from "../../src/interfaces/IERC6900Account.sol";
 import {SingleSignerValidationModule} from "../../src/modules/validation/SingleSignerValidationModule.sol";
 
 import {AccountTestBase} from "../utils/AccountTestBase.sol";
@@ -69,7 +69,7 @@ contract MultiValidationTest is AccountTestBase {
             )
         );
         account1.executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.execute, (address(0), 0, "")),
+            abi.encodeCall(IERC6900Account.execute, (address(0), 0, "")),
             _encodeSignature(
                 ModuleEntityLib.pack(address(validator2), TEST_DEFAULT_VALIDATION_ENTITY_ID), GLOBAL_VALIDATION, ""
             )
@@ -77,7 +77,7 @@ contract MultiValidationTest is AccountTestBase {
 
         vm.prank(owner2);
         account1.executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.execute, (address(0), 0, "")),
+            abi.encodeCall(IERC6900Account.execute, (address(0), 0, "")),
             _encodeSignature(
                 ModuleEntityLib.pack(address(validator2), TEST_DEFAULT_VALIDATION_ENTITY_ID), GLOBAL_VALIDATION, ""
             )

@@ -4,8 +4,9 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 
 import {ReferenceModularAccount} from "../../../src/account/ReferenceModularAccount.sol";
-import {ExecutionManifest} from "../../../src/interfaces/IExecutionModule.sol";
-import {Call, HookConfig, IModularAccount} from "../../../src/interfaces/IModularAccount.sol";
+
+import {Call, HookConfig, IERC6900Account} from "../../../src/interfaces/IERC6900Account.sol";
+import {ExecutionManifest} from "../../../src/interfaces/IERC6900ExecutionModule.sol";
 import {HookConfigLib} from "../../../src/libraries/HookConfigLib.sol";
 import {ModuleEntity} from "../../../src/libraries/ModuleEntityLib.sol";
 import {ModuleEntityLib} from "../../../src/libraries/ModuleEntityLib.sol";
@@ -130,7 +131,7 @@ contract NativeTokenLimitModuleTest is AccountTestBase {
         vm.startPrank(address(entryPoint));
         assertEq(module.limits(0, address(acct)), 10 ether);
         acct.executeUserOp(
-            _getPackedUO(0, 0, 0, 0, abi.encodeCall(IModularAccount.executeBatch, (calls))), bytes32(0)
+            _getPackedUO(0, 0, 0, 0, abi.encodeCall(IERC6900Account.executeBatch, (calls))), bytes32(0)
         );
         assertEq(module.limits(0, address(acct)), 10 ether - 6 ether - 100_001);
         assertEq(recipient.balance, 6 ether + 100_001);
@@ -155,7 +156,7 @@ contract NativeTokenLimitModuleTest is AccountTestBase {
         vm.startPrank(address(entryPoint));
         assertEq(module.limits(0, address(acct)), 10 ether);
         PackedUserOperation[] memory uos = new PackedUserOperation[](1);
-        uos[0] = _getPackedUO(200_000, 200_000, 200_000, 1, abi.encodeCall(IModularAccount.executeBatch, (calls)));
+        uos[0] = _getPackedUO(200_000, 200_000, 200_000, 1, abi.encodeCall(IERC6900Account.executeBatch, (calls)));
         entryPoint.handleOps(uos, bundler);
 
         assertEq(module.limits(0, address(acct)), 10 ether - 6 ether - 700_001);
@@ -188,7 +189,7 @@ contract NativeTokenLimitModuleTest is AccountTestBase {
 
         assertEq(module.limits(0, address(acct)), 10 ether);
         acct.executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.executeBatch, (calls)), _encodeSignature(validationFunction, 1, "")
+            abi.encodeCall(IERC6900Account.executeBatch, (calls)), _encodeSignature(validationFunction, 1, "")
         );
         assertEq(module.limits(0, address(acct)), 4 ether - 100_001);
     }

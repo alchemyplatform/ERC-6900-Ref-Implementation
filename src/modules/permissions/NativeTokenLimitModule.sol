@@ -5,10 +5,11 @@ import {UserOperationLib} from "@eth-infinitism/account-abstraction/core/UserOpe
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {IExecutionHookModule} from "../../interfaces/IExecutionHookModule.sol";
-import {Call, IModularAccount} from "../../interfaces/IModularAccount.sol";
-import {IModule} from "../../interfaces/IModule.sol";
-import {IValidationHookModule} from "../../interfaces/IValidationHookModule.sol";
+import {Call, IERC6900Account} from "../../interfaces/IERC6900Account.sol";
+
+import {IERC6900ExecutionHookModule} from "../../interfaces/IERC6900ExecutionHookModule.sol";
+import {IERC6900Module} from "../../interfaces/IERC6900Module.sol";
+import {IERC6900ValidationHookModule} from "../../interfaces/IERC6900ValidationHookModule.sol";
 import {BaseModule, IERC165} from "../BaseModule.sol";
 
 /// @title Native Token Limit Module
@@ -17,7 +18,7 @@ import {BaseModule, IERC165} from "../BaseModule.sol";
 /// It tracks a total spend limit across UserOperation gas limits and native token transfers.
 /// If a non whitelisted paymaster is used, UO gas would not cause the limit to decrease.
 /// If a whitelisted paymaster is used, gas is still counted towards the limit
-contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidationHookModule {
+contract NativeTokenLimitModule is BaseModule, IERC6900ExecutionHookModule, IERC6900ValidationHookModule {
     using UserOperationLib for PackedUserOperation;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -37,7 +38,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
         specialPaymasters[paymaster][msg.sender] = allowed;
     }
 
-    /// @inheritdoc IValidationHookModule
+    /// @inheritdoc IERC6900ValidationHookModule
     function preUserOpValidationHook(uint32 entityId, PackedUserOperation calldata userOp, bytes32)
         external
         returns (uint256)
@@ -67,7 +68,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
         return 0;
     }
 
-    /// @inheritdoc IExecutionHookModule
+    /// @inheritdoc IERC6900ExecutionHookModule
     function preExecutionHook(uint32 entityId, address, uint256, bytes calldata data)
         external
         override
@@ -76,7 +77,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
         return _checkAndDecrementLimit(entityId, data);
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function onInstall(bytes calldata data) external override {
         (uint32 startEntityId, uint256[] memory spendLimits) = abi.decode(data, (uint32, uint256[]));
 
@@ -89,7 +90,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
         }
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function onUninstall(bytes calldata data) external override {
         // This is the highest entityId that's being used by the account
         uint32 entityId = abi.decode(data, (uint32));
@@ -98,7 +99,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
         }
     }
 
-    /// @inheritdoc IExecutionHookModule
+    /// @inheritdoc IERC6900ExecutionHookModule
     function postExecutionHook(uint32, bytes calldata) external pure override {
         revert NotImplemented();
     }
@@ -114,7 +115,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
     // solhint-disable-next-line no-empty-blocks
     function preSignatureValidationHook(uint32, address, bytes32, bytes calldata) external pure override {}
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function moduleId() external pure returns (string memory) {
         return "erc6900.native-token-limit-module.1.0.0";
     }
@@ -125,7 +126,7 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
 
     /// @inheritdoc BaseModule
     function supportsInterface(bytes4 interfaceId) public view override(BaseModule, IERC165) returns (bool) {
-        return interfaceId == type(IExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC6900ExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function _checkAndDecrementLimit(uint32 entityId, bytes calldata data) internal returns (bytes memory) {
@@ -133,9 +134,9 @@ contract NativeTokenLimitModule is BaseModule, IExecutionHookModule, IValidation
 
         uint256 value;
         // Get value being sent
-        if (selector == IModularAccount.execute.selector) {
+        if (selector == IERC6900Account.execute.selector) {
             (, value) = abi.decode(callData, (address, uint256));
-        } else if (selector == IModularAccount.executeBatch.selector) {
+        } else if (selector == IERC6900Account.executeBatch.selector) {
             Call[] memory calls = abi.decode(callData, (Call[]));
             for (uint256 i = 0; i < calls.length; i++) {
                 value += calls[i].value;

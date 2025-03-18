@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {HookConfig, ModuleEntity, ValidationFlags} from "../interfaces/IModularAccount.sol";
+import {HookConfig, ModuleEntity, ValidationFlags} from "../interfaces/IERC6900Account.sol";
 
 /// @dev Represents data associated with a specific function selector.
 struct ExecutionDataView {
@@ -34,7 +34,7 @@ struct ValidationDataView {
     bytes4[] selectors;
 }
 
-interface IModularAccountView {
+interface IERC6900AccountView {
     /// @notice Get the execution data for a selector.
     /// @dev If the selector is a native function, the module address will be the address of the account.
     /// @param selector The selector to get the data for.

@@ -4,13 +4,13 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
-import {IModule} from "../../interfaces/IModule.sol";
+import {IERC6900Module} from "../../interfaces/IERC6900Module.sol";
 
-import {Call, IModularAccount} from "../../interfaces/IModularAccount.sol";
-import {IValidationHookModule} from "../../interfaces/IValidationHookModule.sol";
+import {Call, IERC6900Account} from "../../interfaces/IERC6900Account.sol";
+import {IERC6900ValidationHookModule} from "../../interfaces/IERC6900ValidationHookModule.sol";
 import {BaseModule} from "../../modules/BaseModule.sol";
 
-contract AllowlistModule is IValidationHookModule, BaseModule {
+contract AllowlistModule is IERC6900ValidationHookModule, BaseModule {
     struct AllowlistInit {
         address target;
         bool hasSelectorAllowlist;
@@ -89,7 +89,7 @@ contract AllowlistModule is IValidationHookModule, BaseModule {
     // solhint-disable-next-line no-empty-blocks
     function preSignatureValidationHook(uint32, address, bytes32, bytes calldata) external pure override {}
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function moduleId() external pure returns (string memory) {
         return "erc6900.allowlist-module.0.0.1";
     }
@@ -107,10 +107,10 @@ contract AllowlistModule is IValidationHookModule, BaseModule {
     }
 
     function checkAllowlistCalldata(uint32 entityId, bytes calldata callData) public view {
-        if (bytes4(callData[:4]) == IModularAccount.execute.selector) {
+        if (bytes4(callData[:4]) == IERC6900Account.execute.selector) {
             (address target,, bytes memory data) = abi.decode(callData[4:], (address, uint256, bytes));
             _checkCallPermission(entityId, msg.sender, target, data);
-        } else if (bytes4(callData[:4]) == IModularAccount.executeBatch.selector) {
+        } else if (bytes4(callData[:4]) == IERC6900Account.executeBatch.selector) {
             Call[] memory calls = abi.decode(callData[4:], (Call[]));
 
             for (uint256 i = 0; i < calls.length; i++) {
@@ -126,7 +126,8 @@ contract AllowlistModule is IValidationHookModule, BaseModule {
         override(BaseModule, IERC165)
         returns (bool)
     {
-        return interfaceId == type(IValidationHookModule).interfaceId || super.supportsInterface(interfaceId);
+        return
+            interfaceId == type(IERC6900ValidationHookModule).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function _checkCallPermission(uint32 entityId, address account, address target, bytes memory data)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {IModule} from "./IModule.sol";
+import {IERC6900Module} from "./IERC6900Module.sol";
 
 struct ManifestExecutionFunction {
     // The selector to install.
@@ -25,11 +25,11 @@ struct ExecutionManifest {
     ManifestExecutionFunction[] executionFunctions;
     ManifestExecutionHook[] executionHooks;
     // List of ERC-165 interface IDs to add to account to support introspection checks. This MUST NOT include
-    // IModule's interface ID.
+    // IERC6900Module's interface ID.
     bytes4[] interfaceIds;
 }
 
-interface IExecutionModule is IModule {
+interface IERC6900ExecutionModule is IERC6900Module {
     /// @notice Describe the contents and intended configuration of the module.
     /// @dev This manifest MUST stay constant over time.
     /// @return A manifest describing the contents and intended configuration of the module.

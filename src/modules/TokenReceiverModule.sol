@@ -4,16 +4,16 @@ pragma solidity ^0.8.20;
 import {IERC1155Receiver} from "@openzeppelin/contracts/interfaces/IERC1155Receiver.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-import {ExecutionManifest, ManifestExecutionFunction} from "../interfaces/IExecutionModule.sol";
-import {ExecutionManifest, IExecutionModule} from "../interfaces/IExecutionModule.sol";
-import {IModule} from "../interfaces/IModule.sol";
+import {ExecutionManifest, ManifestExecutionFunction} from "../interfaces/IERC6900ExecutionModule.sol";
+import {ExecutionManifest, IERC6900ExecutionModule} from "../interfaces/IERC6900ExecutionModule.sol";
+import {IERC6900Module} from "../interfaces/IERC6900Module.sol";
 import {BaseModule} from "./BaseModule.sol";
 
 /// @title Token Receiver Module
 /// @author ERC-6900 Authors
 /// @notice This module allows modular accounts to receive various types of tokens by implementing
 /// required token receiver interfaces.
-contract TokenReceiverModule is BaseModule, IExecutionModule, IERC721Receiver, IERC1155Receiver {
+contract TokenReceiverModule is BaseModule, IERC6900ExecutionModule, IERC721Receiver, IERC1155Receiver {
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     // ┃    Execution functions    ┃
     // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -44,15 +44,15 @@ contract TokenReceiverModule is BaseModule, IExecutionModule, IERC721Receiver, I
     // ┃    Module interface functions    ┃
     // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     // solhint-disable-next-line no-empty-blocks
     function onInstall(bytes calldata) external pure override {}
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     // solhint-disable-next-line no-empty-blocks
     function onUninstall(bytes calldata) external pure override {}
 
-    /// @inheritdoc IExecutionModule
+    /// @inheritdoc IERC6900ExecutionModule
     function executionManifest() external pure override returns (ExecutionManifest memory) {
         ExecutionManifest memory manifest;
 
@@ -80,7 +80,7 @@ contract TokenReceiverModule is BaseModule, IExecutionModule, IERC721Receiver, I
         return manifest;
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function moduleId() external pure returns (string memory) {
         return "erc6900.token-receiver-module.1.0.0";
     }

@@ -3,11 +3,11 @@ pragma solidity ^0.8.20;
 
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
-import {IExecutionHookModule} from "../../../src/interfaces/IExecutionHookModule.sol";
-import {IModularAccount} from "../../../src/interfaces/IModularAccount.sol";
+import {IERC6900Account} from "../../../src/interfaces/IERC6900Account.sol";
+import {IERC6900ExecutionHookModule} from "../../../src/interfaces/IERC6900ExecutionHookModule.sol";
 import {BaseModule} from "../../../src/modules/BaseModule.sol";
 
-contract DirectCallModule is BaseModule, IExecutionHookModule {
+contract DirectCallModule is BaseModule, IERC6900ExecutionHookModule {
     bool public preHookRan = false;
     bool public postHookRan = false;
 
@@ -16,7 +16,7 @@ contract DirectCallModule is BaseModule, IExecutionHookModule {
     function onUninstall(bytes calldata) external override {}
 
     function directCall() external returns (bytes memory) {
-        return IModularAccount(msg.sender).execute(address(this), 0, abi.encodeCall(this.getData, ()));
+        return IERC6900Account(msg.sender).execute(address(this), 0, abi.encodeCall(this.getData, ()));
     }
 
     function getData() external pure returns (bytes memory) {
@@ -52,6 +52,6 @@ contract DirectCallModule is BaseModule, IExecutionHookModule {
         override(BaseModule, IERC165)
         returns (bool)
     {
-        return interfaceId == type(IExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC6900ExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
     }
 }

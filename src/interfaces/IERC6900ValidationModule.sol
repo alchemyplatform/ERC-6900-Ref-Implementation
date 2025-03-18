@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 
-import {IModule} from "./IModule.sol";
+import {IERC6900Module} from "./IERC6900Module.sol";
 
-interface IValidationModule is IModule {
+interface IERC6900ValidationModule is IERC6900Module {
     /// @notice Run the user operation validation function specified by the `entityId`.
     /// @param entityId An identifier that routes the call to different internal implementations, should there
     /// be more than one.

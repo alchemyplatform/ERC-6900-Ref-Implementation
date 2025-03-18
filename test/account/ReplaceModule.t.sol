@@ -2,14 +2,15 @@
 pragma solidity ^0.8.20;
 
 import {ReferenceModularAccount} from "../../src/account/ReferenceModularAccount.sol";
-import {IExecutionHookModule} from "../../src/interfaces/IExecutionHookModule.sol";
+
+import {Call, IERC6900Account, ModuleEntity} from "../../src/interfaces/IERC6900Account.sol";
+import {IERC6900ExecutionHookModule} from "../../src/interfaces/IERC6900ExecutionHookModule.sol";
 import {
     ExecutionManifest,
     ManifestExecutionFunction,
     ManifestExecutionHook
-} from "../../src/interfaces/IExecutionModule.sol";
-import {Call, IModularAccount, ModuleEntity} from "../../src/interfaces/IModularAccount.sol";
-import {IValidationHookModule} from "../../src/interfaces/IValidationHookModule.sol";
+} from "../../src/interfaces/IERC6900ExecutionModule.sol";
+import {IERC6900ValidationHookModule} from "../../src/interfaces/IERC6900ValidationHookModule.sol";
 import {HookConfigLib} from "../../src/libraries/HookConfigLib.sol";
 import {ModuleEntityLib} from "../../src/libraries/ModuleEntityLib.sol";
 import {ValidationConfigLib} from "../../src/libraries/ValidationConfigLib.sol";
@@ -57,7 +58,10 @@ contract UpgradeModuleTest is AccountTestBase {
         vm.expectEmit(true, true, true, true);
         bytes memory callData = abi.encodePacked(TestModule.testFunction.selector);
         emit ReceivedCall(
-            abi.encodeCall(IExecutionHookModule.preExecutionHook, (entityId, address(entryPoint), 0, callData)), 0
+            abi.encodeCall(
+                IERC6900ExecutionHookModule.preExecutionHook, (entityId, address(entryPoint), 0, callData)
+            ),
+            0
         );
         emit ReceivedCall(callData, 0);
         TestModule(address(account1)).testFunction();
@@ -69,14 +73,14 @@ contract UpgradeModuleTest is AccountTestBase {
             target: address(account1),
             value: 0,
             data: abi.encodeCall(
-                IModularAccount.uninstallExecution, (address(moduleV1), moduleV1.executionManifest(), "")
+                IERC6900Account.uninstallExecution, (address(moduleV1), moduleV1.executionManifest(), "")
             )
         });
         calls[1] = Call({
             target: address(account1),
             value: 0,
             data: abi.encodeCall(
-                IModularAccount.installExecution, (address(moduleV2), moduleV2.executionManifest(), "")
+                IERC6900Account.installExecution, (address(moduleV2), moduleV2.executionManifest(), "")
             )
         });
         account1.executeWithRuntimeValidation(
@@ -88,7 +92,8 @@ contract UpgradeModuleTest is AccountTestBase {
         assertEq(account1.getExecutionData((TestModule.testFunction.selector)).module, address(moduleV2));
         vm.expectEmit(true, true, true, true);
         emit ReceivedCall(
-            abi.encodeCall(IExecutionHookModule.preExecutionHook, (entityId, address(owner1), 0, callData)), 0
+            abi.encodeCall(IERC6900ExecutionHookModule.preExecutionHook, (entityId, address(owner1), 0, callData)),
+            0
         );
         emit ReceivedCall(abi.encodePacked(TestModule.testFunction.selector), 0);
         TestModule(address(account1)).testFunction();
@@ -129,18 +134,18 @@ contract UpgradeModuleTest is AccountTestBase {
         );
         // Test that setup worked. Pre val + pre exec hooks should run
         vm.startPrank(owner1);
-        bytes memory callData = abi.encodeCall(IModularAccount.execute, (address(target), sendAmount, ""));
+        bytes memory callData = abi.encodeCall(IERC6900Account.execute, (address(target), sendAmount, ""));
         vm.expectEmit(true, true, true, true);
         emit ReceivedCall(
             abi.encodeCall(
-                IValidationHookModule.preRuntimeValidationHook,
+                IERC6900ValidationHookModule.preRuntimeValidationHook,
                 (validationEntityId1, address(owner1), 0, callData, "")
             ),
             0
         );
         emit ReceivedCall(
             abi.encodeCall(
-                IExecutionHookModule.preExecutionHook, (validationEntityId1, address(owner1), 0, callData)
+                IERC6900ExecutionHookModule.preExecutionHook, (validationEntityId1, address(owner1), 0, callData)
             ),
             0
         );
@@ -162,14 +167,14 @@ contract UpgradeModuleTest is AccountTestBase {
             target: address(account1),
             value: 0,
             data: abi.encodeCall(
-                IModularAccount.uninstallValidation, (currModuleEntity, abi.encode(validationEntityId1), emptyBytesArr)
+                IERC6900Account.uninstallValidation, (currModuleEntity, abi.encode(validationEntityId1), emptyBytesArr)
             )
         });
         calls[1] = Call({
             target: address(account1),
             value: 0,
             data: abi.encodeCall(
-                IModularAccount.installValidation,
+                IERC6900Account.installValidation,
                 (
                     ValidationConfigLib.pack(newModuleEntity, true, false, true),
                     new bytes4[](0),
@@ -187,11 +192,11 @@ contract UpgradeModuleTest is AccountTestBase {
         vm.expectRevert(
             abi.encodePacked(
                 ReferenceModularAccount.ValidationFunctionMissing.selector,
-                abi.encode(IModularAccount.execute.selector)
+                abi.encode(IERC6900Account.execute.selector)
             )
         );
         account1.executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.execute, (target, sendAmount, "")),
+            abi.encodeCall(IERC6900Account.execute, (target, sendAmount, "")),
             _encodeSignature(currModuleEntity, GLOBAL_VALIDATION, "")
         );
 
@@ -199,14 +204,15 @@ contract UpgradeModuleTest is AccountTestBase {
         vm.expectEmit(true, true, true, true);
         emit ReceivedCall(
             abi.encodeCall(
-                IValidationHookModule.preRuntimeValidationHook,
+                IERC6900ValidationHookModule.preRuntimeValidationHook,
                 (validationEntityId2, address(owner1), 0, callData, "")
             ),
             0
         );
         emit ReceivedCall(
             abi.encodeCall(
-                IExecutionHookModule.preExecutionHook, (validationEntityId2, address(entryPoint), 0, callData)
+                IERC6900ExecutionHookModule.preExecutionHook,
+                (validationEntityId2, address(entryPoint), 0, callData)
             ),
             0
         );

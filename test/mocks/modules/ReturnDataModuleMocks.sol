@@ -4,13 +4,14 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 
 import {DIRECT_CALL_VALIDATION_ENTITY_ID} from "../../../src/helpers/Constants.sol";
+
+import {IERC6900Account} from "../../../src/interfaces/IERC6900Account.sol";
 import {
     ExecutionManifest,
-    IExecutionModule,
+    IERC6900ExecutionModule,
     ManifestExecutionFunction
-} from "../../../src/interfaces/IExecutionModule.sol";
-import {IModularAccount} from "../../../src/interfaces/IModularAccount.sol";
-import {IValidationModule} from "../../../src/interfaces/IValidationModule.sol";
+} from "../../../src/interfaces/IERC6900ExecutionModule.sol";
+import {IERC6900ValidationModule} from "../../../src/interfaces/IERC6900ValidationModule.sol";
 import {ModuleEntityLib} from "../../../src/libraries/ModuleEntityLib.sol";
 import {BaseModule} from "../../../src/modules/BaseModule.sol";
 
@@ -26,7 +27,7 @@ contract RegularResultContract {
     }
 }
 
-contract ResultCreatorModule is IExecutionModule, BaseModule {
+contract ResultCreatorModule is IERC6900ExecutionModule, BaseModule {
     function onInstall(bytes calldata) external override {}
 
     function onUninstall(bytes calldata) external override {}
@@ -62,7 +63,12 @@ contract ResultCreatorModule is IExecutionModule, BaseModule {
     }
 }
 
-contract ResultConsumerModule is IExecutionModule, BaseModule, IValidationModule, ModuleSignatureUtils {
+contract ResultConsumerModule is
+    IERC6900ExecutionModule,
+    BaseModule,
+    IERC6900ValidationModule,
+    ModuleSignatureUtils
+{
     ResultCreatorModule public immutable RESULT_CREATOR;
     RegularResultContract public immutable REGULAR_RESULT_CONTRACT;
 
@@ -104,8 +110,8 @@ contract ResultConsumerModule is IExecutionModule, BaseModule, IValidationModule
     // Check the return data through the execute with authorization case
     function checkResultExecuteWithRuntimeValidation(address target, bytes32 expected) external returns (bool) {
         // This result should be allowed based on the manifest permission request
-        bytes memory returnData = IModularAccount(msg.sender).executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.execute, (target, 0, abi.encodeCall(RegularResultContract.foo, ()))),
+        bytes memory returnData = IERC6900Account(msg.sender).executeWithRuntimeValidation(
+            abi.encodeCall(IERC6900Account.execute, (target, 0, abi.encodeCall(RegularResultContract.foo, ()))),
             _encodeSignature(ModuleEntityLib.pack(address(this), DIRECT_CALL_VALIDATION_ENTITY_ID), uint8(0), "")
         );
 

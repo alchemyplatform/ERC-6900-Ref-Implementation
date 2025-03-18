@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {ExecutionManifest} from "./IExecutionModule.sol";
+import {ExecutionManifest} from "./IERC6900ExecutionModule.sol";
 
 type ModuleEntity is bytes24;
 // ModuleEntity is a packed representation of a module function
@@ -47,7 +47,7 @@ struct Call {
     bytes data;
 }
 
-interface IModularAccount {
+interface IERC6900Account {
     event ExecutionInstalled(address indexed module, ExecutionManifest manifest);
     event ExecutionUninstalled(address indexed module, bool onUninstallSucceeded, ExecutionManifest manifest);
     event ValidationInstalled(address indexed module, uint32 indexed entityId);

@@ -6,8 +6,9 @@ import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interface
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {ReferenceModularAccount} from "../../../src/account/ReferenceModularAccount.sol";
-import {ExecutionManifest} from "../../../src/interfaces/IExecutionModule.sol";
-import {Call, IModularAccount} from "../../../src/interfaces/IModularAccount.sol";
+
+import {Call, IERC6900Account} from "../../../src/interfaces/IERC6900Account.sol";
+import {ExecutionManifest} from "../../../src/interfaces/IERC6900ExecutionModule.sol";
 import {HookConfigLib} from "../../../src/libraries/HookConfigLib.sol";
 import {ModuleEntity} from "../../../src/libraries/ModuleEntityLib.sol";
 import {ModuleEntityLib} from "../../../src/libraries/ModuleEntityLib.sol";
@@ -105,7 +106,7 @@ contract ERC20TokenLimitModuleTest is AccountTestBase {
         vm.startPrank(address(entryPoint));
         (, uint256 limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether);
-        acct.executeUserOp(_getPackedUO(abi.encodeCall(IModularAccount.executeBatch, (calls))), bytes32(0));
+        acct.executeUserOp(_getPackedUO(abi.encodeCall(IERC6900Account.executeBatch, (calls))), bytes32(0));
 
         (, limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether - 6 ether - 100_001);
@@ -126,7 +127,7 @@ contract ERC20TokenLimitModuleTest is AccountTestBase {
         vm.startPrank(address(entryPoint));
         (, uint256 limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether);
-        acct.executeUserOp(_getPackedUO(abi.encodeCall(IModularAccount.executeBatch, (calls))), bytes32(0));
+        acct.executeUserOp(_getPackedUO(abi.encodeCall(IERC6900Account.executeBatch, (calls))), bytes32(0));
 
         (, limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether - 6 ether - 100_001);
@@ -148,7 +149,7 @@ contract ERC20TokenLimitModuleTest is AccountTestBase {
         (, uint256 limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether);
         PackedUserOperation[] memory uos = new PackedUserOperation[](1);
-        uos[0] = _getPackedUO(abi.encodeCall(IModularAccount.executeBatch, (calls)));
+        uos[0] = _getPackedUO(abi.encodeCall(IERC6900Account.executeBatch, (calls)));
         entryPoint.handleOps(uos, bundler);
         // no spend consumed
 
@@ -183,7 +184,7 @@ contract ERC20TokenLimitModuleTest is AccountTestBase {
         (, uint256 limit) = module.limits(0, address(erc20), address(acct));
         assertEq(limit, 10 ether);
         acct.executeWithRuntimeValidation(
-            abi.encodeCall(IModularAccount.executeBatch, (calls)),
+            abi.encodeCall(IERC6900Account.executeBatch, (calls)),
             _encodeSignature(ModuleEntityLib.pack(address(validationModule), 0), 1, "")
         );
 

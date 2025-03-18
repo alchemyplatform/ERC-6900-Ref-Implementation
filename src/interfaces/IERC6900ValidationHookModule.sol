@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 
-import {IModule} from "./IModule.sol";
+import {IERC6900Module} from "./IERC6900Module.sol";
 
-interface IValidationHookModule is IModule {
+interface IERC6900ValidationHookModule is IERC6900Module {
     /// @notice Run the pre user operation validation hook specified by the `entityId`.
     /// @dev Pre user operation validation hooks MUST NOT return an authorizer value other than 0 or 1.
     /// @param entityId An identifier that routes the call to different internal implementations, should there

@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {ReferenceModularAccount} from "../../src/account/ReferenceModularAccount.sol";
 
-import {Call, IModularAccount} from "../../src/interfaces/IModularAccount.sol";
+import {Call, IERC6900Account} from "../../src/interfaces/IERC6900Account.sol";
 import {HookConfigLib} from "../../src/libraries/HookConfigLib.sol";
 import {ModuleEntity, ModuleEntityLib} from "../../src/libraries/ModuleEntityLib.sol";
 import {ValidationConfig, ValidationConfigLib} from "../../src/libraries/ValidationConfigLib.sol";
@@ -43,7 +43,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
 
     function test_Fail_DirectCallModuleNotInstalled() external {
         vm.prank(address(_module));
-        vm.expectRevert(_buildDirectCallDisallowedError(IModularAccount.execute.selector));
+        vm.expectRevert(_buildDirectCallDisallowedError(IERC6900Account.execute.selector));
         account1.execute(address(0), 0, "");
     }
 
@@ -54,7 +54,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
         _uninstallValidation();
 
         vm.prank(address(_module));
-        vm.expectRevert(_buildDirectCallDisallowedError(IModularAccount.execute.selector));
+        vm.expectRevert(_buildDirectCallDisallowedError(IERC6900Account.execute.selector));
         account1.execute(address(0), 0, "");
     }
 
@@ -64,7 +64,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
         Call[] memory calls = new Call[](0);
 
         vm.prank(address(_module));
-        vm.expectRevert(_buildDirectCallDisallowedError(IModularAccount.executeBatch.selector));
+        vm.expectRevert(_buildDirectCallDisallowedError(IERC6900Account.executeBatch.selector));
         account1.executeBatch(calls);
     }
 
@@ -115,7 +115,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
         _uninstallValidation();
 
         vm.prank(address(_module));
-        vm.expectRevert(_buildDirectCallDisallowedError(IModularAccount.execute.selector));
+        vm.expectRevert(_buildDirectCallDisallowedError(IERC6900Account.execute.selector));
         account1.execute(address(0), 0, "");
     }
 
@@ -123,7 +123,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
         address extraOwner = makeAddr("extraOwner");
 
         bytes4[] memory selectors = new bytes4[](1);
-        selectors[0] = IModularAccount.execute.selector;
+        selectors[0] = IERC6900Account.execute.selector;
 
         vm.prank(address(entryPoint));
 
@@ -144,7 +144,7 @@ contract DirectCallsFromModuleTest is AccountTestBase {
 
     function _installValidationSelector() internal {
         bytes4[] memory selectors = new bytes4[](1);
-        selectors[0] = IModularAccount.execute.selector;
+        selectors[0] = IERC6900Account.execute.selector;
 
         bytes[] memory hooks = new bytes[](1);
         hooks[0] = abi.encodePacked(

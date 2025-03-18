@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
-interface IModule is IERC165 {
+interface IERC6900Module is IERC165 {
     /// @notice Initialize module data for the modular account.
     /// @dev Called by the modular account during `installExecution`.
     /// @param data Optional bytes array to be decoded and used by the module to setup initial module data for the

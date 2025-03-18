@@ -5,13 +5,13 @@ import {IAccountExecute} from "@eth-infinitism/account-abstraction/interfaces/IA
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {ERC165, IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import {IModule} from "../interfaces/IModule.sol";
+import {IERC6900Module} from "../interfaces/IERC6900Module.sol";
 
 /// @title Base contract for modules
-/// @dev Implements ERC-165 to support IModule's interface, which is a requirement
+/// @dev Implements ERC-165 to support IERC6900Module's interface, which is a requirement
 /// for module installation. This also ensures that module interactions cannot
 /// happen via the standard execution funtions `execute` and `executeBatch`.
-abstract contract BaseModule is ERC165, IModule {
+abstract contract BaseModule is ERC165, IERC6900Module {
     error NotImplemented();
 
     /// @dev Returns true if this contract implements the interface defined by
@@ -21,13 +21,13 @@ abstract contract BaseModule is ERC165, IModule {
     ///
     /// This function call must use less than 30 000 gas.
     ///
-    /// Supporting the IModule interface is a requirement for module installation. This is also used
+    /// Supporting the IERC6900Module interface is a requirement for module installation. This is also used
     /// by the modular account to prevent standard execution functions `execute` and `executeBatch` from
     /// making calls to modules.
     /// @param interfaceId The interface ID to check for support.
     /// @return True if the contract supports `interfaceId`.
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-        return interfaceId == type(IModule).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC6900Module).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function _getSelectorAndCalldata(bytes calldata data) internal pure returns (bytes4, bytes memory) {
