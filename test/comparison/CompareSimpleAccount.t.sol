@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {EntryPoint} from "@eth-infinitism/account-abstraction/core/EntryPoint.sol";
+import {IEntryPoint} from "@eth-infinitism/account-abstraction/interfaces/IEntryPoint.sol";
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
@@ -12,12 +12,13 @@ import {SimpleAccount} from "@eth-infinitism/account-abstraction/samples/SimpleA
 import {SimpleAccountFactory} from "@eth-infinitism/account-abstraction/samples/SimpleAccountFactory.sol";
 
 import {Counter} from "../mocks/Counter.sol";
+import {EntryPointUtils} from "../utils/EntryPointUtils.sol";
 
-contract CompareSimpleAccountTest is Test {
+contract CompareSimpleAccountTest is Test, EntryPointUtils {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
-    EntryPoint public entryPoint;
+    IEntryPoint public entryPoint;
     address payable public beneficiary;
 
     SimpleAccountFactory public factory;
@@ -43,7 +44,7 @@ contract CompareSimpleAccountTest is Test {
     }
 
     function setUp() public {
-        entryPoint = new EntryPoint();
+        entryPoint = _deployEntryPoint();
         (owner1, owner1Key) = makeAddrAndKey("owner1");
         beneficiary = payable(makeAddr("beneficiary"));
         vm.deal(beneficiary, 1 wei);

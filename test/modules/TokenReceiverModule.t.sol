@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {EntryPoint} from "@eth-infinitism/account-abstraction/core/EntryPoint.sol";
-
+import {IEntryPoint} from "@eth-infinitism/account-abstraction/interfaces/IEntryPoint.sol";
 import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
@@ -13,10 +12,11 @@ import {MockERC1155} from "../mocks/MockERC1155.sol";
 import {MockERC721} from "../mocks/MockERC721.sol";
 import {SingleSignerFactoryFixture} from "../mocks/SingleSignerFactoryFixture.sol";
 
+import {EntryPointUtils} from "../utils/EntryPointUtils.sol";
 import {OptimizedTest} from "../utils/OptimizedTest.sol";
 
-contract TokenReceiverModuleTest is OptimizedTest, IERC1155Receiver {
-    EntryPoint public entryPoint;
+contract TokenReceiverModuleTest is OptimizedTest, IERC1155Receiver, EntryPointUtils {
+    IEntryPoint public entryPoint;
     ReferenceModularAccount public acct;
     TokenReceiverModule public module;
 
@@ -34,7 +34,7 @@ contract TokenReceiverModuleTest is OptimizedTest, IERC1155Receiver {
     uint256 internal constant _BATCH_TOKEN_IDS = 5;
 
     function setUp() public {
-        entryPoint = new EntryPoint();
+        entryPoint = _deployEntryPoint();
         SingleSignerFactoryFixture factory =
             new SingleSignerFactoryFixture(entryPoint, _deploySingleSignerValidationModule());
 
