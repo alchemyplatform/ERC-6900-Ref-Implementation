@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {EntryPoint} from "@eth-infinitism/account-abstraction/core/EntryPoint.sol";
+import {IEntryPoint} from "@eth-infinitism/account-abstraction/interfaces/IEntryPoint.sol";
 import {IStakeManager} from "@eth-infinitism/account-abstraction/interfaces/IStakeManager.sol";
 import {Create2} from "@openzeppelin/contracts/utils/Create2.sol";
 
@@ -15,10 +15,12 @@ import {ReferenceModularAccount} from "../../src/account/ReferenceModularAccount
 import {SemiModularAccount} from "../../src/account/SemiModularAccount.sol";
 import {SingleSignerValidationModule} from "../../src/modules/validation/SingleSignerValidationModule.sol";
 
-contract DeployTest is Test {
+import {EntryPointUtils} from "../utils/EntryPointUtils.sol";
+
+contract DeployTest is Test, EntryPointUtils {
     DeployScript internal _deployScript;
 
-    EntryPoint internal _entryPoint;
+    IEntryPoint internal _entryPoint;
 
     address internal _owner;
 
@@ -28,7 +30,7 @@ contract DeployTest is Test {
     address internal _factory;
 
     function setUp() public {
-        _entryPoint = new EntryPoint();
+        _entryPoint = _deployEntryPoint();
 
         // Set the owner to the foundry default sender, as this is what will be used as the sender within the
         // `startBroadcast` segment of the script.
