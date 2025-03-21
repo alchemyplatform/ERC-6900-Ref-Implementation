@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {IModularAccount} from "../interfaces/IModularAccount.sol";
+import {IERC6900Account} from "../interfaces/IERC6900Account.sol";
 import {SemiModularAccount} from "./SemiModularAccount.sol";
 import {IEntryPoint} from "@eth-infinitism/account-abstraction/interfaces/IEntryPoint.sol";
 
@@ -10,7 +10,7 @@ contract SemiModularAccount7702 is SemiModularAccount {
 
     constructor(IEntryPoint anEntryPoint) SemiModularAccount(anEntryPoint) {}
 
-    /// @inheritdoc IModularAccount
+    /// @inheritdoc IERC6900Account
     function accountId() external pure virtual override returns (string memory) {
         return "erc6900.reference-semi-modular-account-7702.0.8.0";
     }

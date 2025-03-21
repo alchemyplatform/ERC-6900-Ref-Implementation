@@ -5,15 +5,17 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {collectReturnData} from "../helpers/CollectReturnData.sol";
 import {MAX_VALIDATION_ASSOC_HOOKS} from "../helpers/Constants.sol";
-import {ExecutionManifest, ManifestExecutionHook} from "../interfaces/IExecutionModule.sol";
+
 import {
     HookConfig,
-    IModularAccount,
+    IERC6900Account,
     ModuleEntity,
     ValidationConfig,
     ValidationFlags
-} from "../interfaces/IModularAccount.sol";
-import {IModule} from "../interfaces/IModule.sol";
+} from "../interfaces/IERC6900Account.sol";
+
+import {ExecutionManifest, ManifestExecutionHook} from "../interfaces/IERC6900ExecutionModule.sol";
+import {IERC6900Module} from "../interfaces/IERC6900Module.sol";
 import {HookConfigLib} from "../libraries/HookConfigLib.sol";
 import {KnownSelectorsLib} from "../libraries/KnownSelectorsLib.sol";
 import {ModuleEntityLib} from "../libraries/ModuleEntityLib.sol";
@@ -28,7 +30,7 @@ import {
     toSetValue
 } from "./AccountStorage.sol";
 
-abstract contract ModuleManagerInternals is IModularAccount {
+abstract contract ModuleManagerInternals is IERC6900Account {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using ModuleEntityLib for ModuleEntity;
     using ValidationConfigLib for ValidationConfig;
@@ -67,7 +69,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
             revert NativeFunctionNotAllowed(selector);
         }
 
-        // Make sure incoming execution function is not a function in IModule
+        // Make sure incoming execution function is not a function in IERC6900Module
         if (KnownSelectorsLib.isIModuleFunction(selector)) {
             revert IModuleFunctionNotAllowed(selector);
         }
@@ -194,7 +196,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
     function _onInstall(address module, bytes calldata data) internal {
         if (data.length > 0) {
             // solhint-disable-next-line no-empty-blocks
-            try IModule(module).onInstall(data) {}
+            try IERC6900Module(module).onInstall(data) {}
             catch {
                 bytes memory revertReason = collectReturnData();
                 revert ModuleInstallCallbackFailed(module, revertReason);
@@ -207,7 +209,7 @@ abstract contract ModuleManagerInternals is IModularAccount {
         if (data.length > 0) {
             // Clear the module storage for the account.
             // solhint-disable-next-line no-empty-blocks
-            try IModule(module).onUninstall(data) {}
+            try IERC6900Module(module).onUninstall(data) {}
             catch {
                 onUninstallSuccess = false;
             }

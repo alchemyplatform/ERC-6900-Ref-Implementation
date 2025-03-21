@@ -4,15 +4,15 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
-import {IModularAccount} from "../../../src/interfaces/IModularAccount.sol";
-import {IValidationHookModule} from "../../../src/interfaces/IValidationHookModule.sol";
+import {IERC6900Account} from "../../../src/interfaces/IERC6900Account.sol";
+import {IERC6900ValidationHookModule} from "../../../src/interfaces/IERC6900ValidationHookModule.sol";
 import {BaseModule} from "../../../src/modules/BaseModule.sol";
 
 // A pre validaiton hook module that uses per-hook data.
 // This example enforces that the target of an `execute` call must only be the previously specified address.
 // This is just a mock - it does not enforce this over `executeBatch` and other methods of making calls, and should
 // not be used in production..
-contract MockAccessControlHookModule is IValidationHookModule, BaseModule {
+contract MockAccessControlHookModule is IERC6900ValidationHookModule, BaseModule {
     mapping(uint32 entityId => mapping(address account => address allowedTarget)) public allowedTargets;
 
     function onInstall(bytes calldata data) external override {
@@ -31,7 +31,7 @@ contract MockAccessControlHookModule is IValidationHookModule, BaseModule {
         override
         returns (uint256)
     {
-        if (bytes4(userOp.callData[:4]) == IModularAccount.execute.selector) {
+        if (bytes4(userOp.callData[:4]) == IERC6900Account.execute.selector) {
             address target = abi.decode(userOp.callData[4:36], (address));
 
             // Simulate a merkle proof - require that the target address is also provided in the signature
@@ -51,7 +51,7 @@ contract MockAccessControlHookModule is IValidationHookModule, BaseModule {
         bytes calldata data,
         bytes calldata authorization
     ) external view override {
-        if (bytes4(data[:4]) == IModularAccount.execute.selector) {
+        if (bytes4(data[:4]) == IERC6900Account.execute.selector) {
             address target = abi.decode(data[4:36], (address));
 
             // Simulate a merkle proof - require that the target address is also provided in the authorization
@@ -89,6 +89,7 @@ contract MockAccessControlHookModule is IValidationHookModule, BaseModule {
         override(BaseModule, IERC165)
         returns (bool)
     {
-        return interfaceId == type(IValidationHookModule).interfaceId || super.supportsInterface(interfaceId);
+        return
+            interfaceId == type(IERC6900ValidationHookModule).interfaceId || super.supportsInterface(interfaceId);
     }
 }

@@ -5,18 +5,18 @@ import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interface
 
 import {
     ExecutionManifest,
-    IExecutionModule,
+    IERC6900ExecutionModule,
     ManifestExecutionFunction
-} from "../../../src/interfaces/IExecutionModule.sol";
+} from "../../../src/interfaces/IERC6900ExecutionModule.sol";
 
-import {IValidationHookModule} from "../../../src/interfaces/IValidationHookModule.sol";
-import {IValidationModule} from "../../../src/interfaces/IValidationModule.sol";
+import {IERC6900ValidationHookModule} from "../../../src/interfaces/IERC6900ValidationHookModule.sol";
+import {IERC6900ValidationModule} from "../../../src/interfaces/IERC6900ValidationModule.sol";
 import {BaseModule} from "../../../src/modules/BaseModule.sol";
 
 abstract contract MockBaseUserOpValidationModule is
-    IExecutionModule,
-    IValidationModule,
-    IValidationHookModule,
+    IERC6900ExecutionModule,
+    IERC6900ValidationModule,
+    IERC6900ValidationHookModule,
     BaseModule
 {
     enum EntityId {

@@ -6,8 +6,8 @@ import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
-import {IModule} from "../../interfaces/IModule.sol";
-import {IValidationModule} from "../../interfaces/IValidationModule.sol";
+import {IERC6900Module} from "../../interfaces/IERC6900Module.sol";
+import {IERC6900ValidationModule} from "../../interfaces/IERC6900ValidationModule.sol";
 import {BaseModule} from "../BaseModule.sol";
 
 import {ReplaySafeWrapper} from "../ReplaySafeWrapper.sol";
@@ -42,19 +42,19 @@ contract SingleSignerValidationModule is ISingleSignerValidationModule, ReplaySa
         _transferSigner(entityId, newSigner);
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function onInstall(bytes calldata data) external override {
         (uint32 entityId, address newSigner) = abi.decode(data, (uint32, address));
         _transferSigner(entityId, newSigner);
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function onUninstall(bytes calldata data) external override {
         uint32 entityId = abi.decode(data, (uint32));
         _transferSigner(entityId, address(0));
     }
 
-    /// @inheritdoc IValidationModule
+    /// @inheritdoc IERC6900ValidationModule
     function validateUserOp(uint32 entityId, PackedUserOperation calldata userOp, bytes32 userOpHash)
         external
         view
@@ -72,7 +72,7 @@ contract SingleSignerValidationModule is ISingleSignerValidationModule, ReplaySa
         return _SIG_VALIDATION_FAILED;
     }
 
-    /// @inheritdoc IValidationModule
+    /// @inheritdoc IERC6900ValidationModule
     function validateRuntime(
         address account,
         uint32 entityId,
@@ -88,7 +88,7 @@ contract SingleSignerValidationModule is ISingleSignerValidationModule, ReplaySa
         return;
     }
 
-    /// @inheritdoc IValidationModule
+    /// @inheritdoc IERC6900ValidationModule
     /// @dev The signature is valid if it is signed by the owner's private key
     /// (if the owner is an EOA) or if it is a valid ERC-1271 signature from the
     /// owner (if the owner is a contract).
@@ -111,7 +111,7 @@ contract SingleSignerValidationModule is ISingleSignerValidationModule, ReplaySa
     // ┃    Module interface functions    ┃
     // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function moduleId() external pure returns (string memory) {
         return "erc6900.single-signer-validation-module.1.0.0";
     }
@@ -123,7 +123,7 @@ contract SingleSignerValidationModule is ISingleSignerValidationModule, ReplaySa
         override(BaseModule, IERC165)
         returns (bool)
     {
-        return (interfaceId == type(IValidationModule).interfaceId || super.supportsInterface(interfaceId));
+        return (interfaceId == type(IERC6900ValidationModule).interfaceId || super.supportsInterface(interfaceId));
     }
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓

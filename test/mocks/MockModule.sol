@@ -3,10 +3,11 @@ pragma solidity ^0.8.20;
 
 import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import {IExecutionHookModule} from "../../src/interfaces/IExecutionHookModule.sol";
-import {ExecutionManifest} from "../../src/interfaces/IExecutionModule.sol";
-import {IModule} from "../../src/interfaces/IModule.sol";
-import {IValidationModule} from "../../src/interfaces/IValidationModule.sol";
+import {IERC6900ExecutionHookModule} from "../../src/interfaces/IERC6900ExecutionHookModule.sol";
+
+import {ExecutionManifest} from "../../src/interfaces/IERC6900ExecutionModule.sol";
+import {IERC6900Module} from "../../src/interfaces/IERC6900Module.sol";
+import {IERC6900ValidationModule} from "../../src/interfaces/IERC6900ValidationModule.sol";
 
 contract MockModule is ERC165 {
     // It's super inefficient to hold the entire abi-encoded manifest in storage, but this is fine since it's
@@ -58,14 +59,14 @@ contract MockModule is ERC165 {
     ///
     /// This function call must use less than 30 000 gas.
     ///
-    /// Supporting the IModule interface is a requirement for module installation. This is also used
+    /// Supporting the IERC6900Module interface is a requirement for module installation. This is also used
     /// by the modular account to prevent standard execution functions `execute` and `executeBatch` from
     /// making calls to modules.
     /// @param interfaceId The interface ID to check for support.
     /// @return True if the contract supports `interfaceId`.
 
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IModule).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC6900Module).interfaceId || super.supportsInterface(interfaceId);
     }
 
     receive() external payable {}
@@ -74,9 +75,9 @@ contract MockModule is ERC165 {
     fallback() external payable {
         emit ReceivedCall(msg.data, msg.value);
         if (
-            msg.sig == IValidationModule.validateUserOp.selector
-                || msg.sig == IValidationModule.validateRuntime.selector
-                || msg.sig == IExecutionHookModule.preExecutionHook.selector
+            msg.sig == IERC6900ValidationModule.validateUserOp.selector
+                || msg.sig == IERC6900ValidationModule.validateRuntime.selector
+                || msg.sig == IERC6900ExecutionHookModule.preExecutionHook.selector
         ) {
             // return 0 for userOp/runtimeVal case, return bytes("") for preExecutionHook case
             assembly ("memory-safe") {

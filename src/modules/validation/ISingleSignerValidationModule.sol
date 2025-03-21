@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {IValidationModule} from "../../interfaces/IValidationModule.sol";
+import {IERC6900ValidationModule} from "../../interfaces/IERC6900ValidationModule.sol";
 
-interface ISingleSignerValidationModule is IValidationModule {
+interface ISingleSignerValidationModule is IERC6900ValidationModule {
     /// @notice This event is emitted when Signer of the account's validation changes.
     /// @param account The account whose validation Signer changed.
     /// @param entityId The entityId for the account and the signer.

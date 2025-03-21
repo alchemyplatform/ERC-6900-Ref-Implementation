@@ -5,9 +5,10 @@ import {UserOperationLib} from "@eth-infinitism/account-abstraction/core/UserOpe
 import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interfaces/PackedUserOperation.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IExecutionHookModule} from "../../interfaces/IExecutionHookModule.sol";
-import {Call, IModularAccount} from "../../interfaces/IModularAccount.sol";
-import {IModule} from "../../interfaces/IModule.sol";
+import {Call, IERC6900Account} from "../../interfaces/IERC6900Account.sol";
+
+import {IERC6900ExecutionHookModule} from "../../interfaces/IERC6900ExecutionHookModule.sol";
+import {IERC6900Module} from "../../interfaces/IERC6900Module.sol";
 
 import {BaseModule, IERC165} from "../BaseModule.sol";
 
@@ -18,7 +19,7 @@ import {BaseModule, IERC165} from "../BaseModule.sol";
 /// Note: this module is opinionated on what selectors can be called for token contracts to guard against weird
 /// edge cases like DAI. You wouldn't be able to use uni v2 pairs directly as the pair contract is also the LP
 /// token contract
-contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
+contract ERC20TokenLimitModule is BaseModule, IERC6900ExecutionHookModule {
     using UserOperationLib for PackedUserOperation;
 
     struct ERC20SpendLimit {
@@ -39,7 +40,7 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
     error SelectorNotAllowed();
     error SpendingRequestNotAllowed(bytes4);
 
-    /// @inheritdoc IExecutionHookModule
+    /// @inheritdoc IERC6900ExecutionHookModule
     function preExecutionHook(uint32 entityId, address, uint256, bytes calldata data)
         external
         override
@@ -47,11 +48,11 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
     {
         (bytes4 selector, bytes memory callData) = _getSelectorAndCalldata(data);
 
-        if (selector == IModularAccount.execute.selector) {
+        if (selector == IERC6900Account.execute.selector) {
             // when calling execute or ERC20 functions directly
             (address token,, bytes memory innerCalldata) = abi.decode(callData, (address, uint256, bytes));
             _decrementLimitIfApplies(entityId, token, innerCalldata);
-        } else if (selector == IModularAccount.executeBatch.selector) {
+        } else if (selector == IERC6900Account.executeBatch.selector) {
             Call[] memory calls = abi.decode(callData, (Call[]));
             for (uint256 i = 0; i < calls.length; i++) {
                 _decrementLimitIfApplies(entityId, calls[i].target, calls[i].data);
@@ -62,7 +63,7 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
         return "";
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     /// @param data should be encoded with the entityId of the validation and a list of ERC20 spend limits
     function onInstall(bytes calldata data) external override {
         (uint32 entityId, ERC20SpendLimit[] memory spendLimits) = abi.decode(data, (uint32, ERC20SpendLimit[]));
@@ -73,7 +74,7 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
         }
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     /// @notice uninstall this module can only clear limit for one token of one entity. To clear all limits, users
     /// are recommended to use updateLimit for each token and entityId.
     /// @param data should be encoded with the entityId of the validation and the token address to be uninstalled
@@ -82,12 +83,12 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
         delete limits[entityId][token][msg.sender];
     }
 
-    /// @inheritdoc IExecutionHookModule
+    /// @inheritdoc IERC6900ExecutionHookModule
     function postExecutionHook(uint32, bytes calldata) external pure override {
         revert NotImplemented();
     }
 
-    /// @inheritdoc IModule
+    /// @inheritdoc IERC6900Module
     function moduleId() external pure returns (string memory) {
         return "erc6900.erc20-token-limit-module.1.0.0";
     }
@@ -105,7 +106,7 @@ contract ERC20TokenLimitModule is BaseModule, IExecutionHookModule {
 
     /// @inheritdoc BaseModule
     function supportsInterface(bytes4 interfaceId) public view override(BaseModule, IERC165) returns (bool) {
-        return interfaceId == type(IExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC6900ExecutionHookModule).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function _decrementLimitIfApplies(uint32 entityId, address token, bytes memory innerCalldata) internal {

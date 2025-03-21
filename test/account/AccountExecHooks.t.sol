@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {IExecutionHookModule} from "../../src/interfaces/IExecutionHookModule.sol";
+import {IERC6900ExecutionHookModule} from "../../src/interfaces/IERC6900ExecutionHookModule.sol";
 import {
     ExecutionManifest,
-    IModule,
+    IERC6900Module,
     ManifestExecutionFunction,
     ManifestExecutionHook
-} from "../../src/interfaces/IExecutionModule.sol";
+} from "../../src/interfaces/IERC6900ExecutionModule.sol";
 
 import {MockModule} from "../mocks/MockModule.sol";
 import {AccountTestBase} from "../utils/AccountTestBase.sol";
@@ -58,7 +58,7 @@ contract AccountExecHooksTest is AccountTestBase {
         vm.expectEmit(true, true, true, true);
         emit ReceivedCall(
             abi.encodeWithSelector(
-                IExecutionHookModule.preExecutionHook.selector,
+                IERC6900ExecutionHookModule.preExecutionHook.selector,
                 _PRE_HOOK_FUNCTION_ID_1,
                 address(this), // caller
                 uint256(0), // msg.value in call to account
@@ -97,7 +97,7 @@ contract AccountExecHooksTest is AccountTestBase {
         // pre hook call
         emit ReceivedCall(
             abi.encodeWithSelector(
-                IExecutionHookModule.preExecutionHook.selector,
+                IERC6900ExecutionHookModule.preExecutionHook.selector,
                 _BOTH_HOOKS_FUNCTION_ID_3,
                 address(this), // caller
                 uint256(0), // msg.value in call to account
@@ -111,7 +111,7 @@ contract AccountExecHooksTest is AccountTestBase {
         vm.expectEmit(true, true, true, true);
         // post hook call
         emit ReceivedCall(
-            abi.encodeCall(IExecutionHookModule.postExecutionHook, (_BOTH_HOOKS_FUNCTION_ID_3, "")),
+            abi.encodeCall(IERC6900ExecutionHookModule.postExecutionHook, (_BOTH_HOOKS_FUNCTION_ID_3, "")),
             0 // msg value in call to module
         );
 
@@ -143,7 +143,7 @@ contract AccountExecHooksTest is AccountTestBase {
 
         vm.expectEmit(true, true, true, true);
         emit ReceivedCall(
-            abi.encodeCall(IExecutionHookModule.postExecutionHook, (_POST_HOOK_FUNCTION_ID_2, "")),
+            abi.encodeCall(IERC6900ExecutionHookModule.postExecutionHook, (_POST_HOOK_FUNCTION_ID_2, "")),
             0 // msg value in call to module
         );
 
@@ -162,7 +162,7 @@ contract AccountExecHooksTest is AccountTestBase {
         mockModule1 = new MockModule(_m1);
 
         vm.expectEmit(true, true, true, true);
-        emit ReceivedCall(abi.encodeCall(IModule.onInstall, (bytes("a"))), 0);
+        emit ReceivedCall(abi.encodeCall(IERC6900Module.onInstall, (bytes("a"))), 0);
         vm.expectEmit(true, true, true, true);
         emit ExecutionInstalled(address(mockModule1), _m1);
 
@@ -177,7 +177,7 @@ contract AccountExecHooksTest is AccountTestBase {
 
     function _uninstallExecution(MockModule module) internal {
         vm.expectEmit(true, true, true, true);
-        emit ReceivedCall(abi.encodeCall(IModule.onUninstall, (bytes("b"))), 0);
+        emit ReceivedCall(abi.encodeCall(IERC6900Module.onUninstall, (bytes("b"))), 0);
         vm.expectEmit(true, true, true, true);
         emit ExecutionUninstalled(address(module), true, module.executionManifest());
 

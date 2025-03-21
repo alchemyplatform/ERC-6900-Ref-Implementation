@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.20;
 
-import {ModuleEntity} from "../interfaces/IModularAccount.sol";
+import {ModuleEntity} from "../interfaces/IERC6900Account.sol";
 // ModuleEntity is a packed representation of a module function
 // Layout:
 // 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA________________________ // Address

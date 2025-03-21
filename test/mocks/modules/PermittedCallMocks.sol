@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 import {
     ExecutionManifest,
-    IExecutionModule,
+    IERC6900ExecutionModule,
     ManifestExecutionFunction
-} from "../../../src/interfaces/IExecutionModule.sol";
+} from "../../../src/interfaces/IERC6900ExecutionModule.sol";
 
 import {BaseModule} from "../../../src/modules/BaseModule.sol";
 import {ResultCreatorModule} from "./ReturnDataModuleMocks.sol";
 
-contract PermittedCallerModule is IExecutionModule, BaseModule {
+contract PermittedCallerModule is IERC6900ExecutionModule, BaseModule {
     function onInstall(bytes calldata) external override {}
 
     function onUninstall(bytes calldata) external override {}

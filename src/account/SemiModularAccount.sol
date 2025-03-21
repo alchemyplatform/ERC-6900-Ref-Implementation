@@ -7,7 +7,7 @@ import {PackedUserOperation} from "@eth-infinitism/account-abstraction/interface
 
 import {ModuleEntityLib} from "../libraries/ModuleEntityLib.sol";
 
-import {IModularAccount, ModuleEntity, ValidationConfig} from "../interfaces/IModularAccount.sol";
+import {IERC6900Account, ModuleEntity, ValidationConfig} from "../interfaces/IERC6900Account.sol";
 
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
@@ -91,7 +91,7 @@ contract SemiModularAccount is ReferenceModularAccount {
         revert InitializerDisabled();
     }
 
-    /// @inheritdoc IModularAccount
+    /// @inheritdoc IERC6900Account
     function accountId() external pure virtual override returns (string memory) {
         return "erc6900.reference-semi-modular-account.0.8.0";
     }

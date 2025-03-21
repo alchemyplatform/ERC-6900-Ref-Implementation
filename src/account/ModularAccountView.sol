@@ -5,23 +5,23 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {EnumerableMap} from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {HookConfig, IModularAccount, ModuleEntity} from "../interfaces/IModularAccount.sol";
-import {ExecutionDataView, IModularAccountView, ValidationDataView} from "../interfaces/IModularAccountView.sol";
+import {HookConfig, IERC6900Account, ModuleEntity} from "../interfaces/IERC6900Account.sol";
+import {ExecutionDataView, IERC6900AccountView, ValidationDataView} from "../interfaces/IERC6900AccountView.sol";
 import {HookConfigLib} from "../libraries/HookConfigLib.sol";
 import {ExecutionStorage, ValidationStorage, getAccountStorage, toHookConfig} from "./AccountStorage.sol";
 
-abstract contract ModularAccountView is IModularAccountView {
+abstract contract ModularAccountView is IERC6900AccountView {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using HookConfigLib for HookConfig;
 
-    /// @inheritdoc IModularAccountView
+    /// @inheritdoc IERC6900AccountView
     function getExecutionData(bytes4 selector) external view override returns (ExecutionDataView memory data) {
         if (
-            selector == IModularAccount.execute.selector || selector == IModularAccount.executeBatch.selector
+            selector == IERC6900Account.execute.selector || selector == IERC6900Account.executeBatch.selector
                 || selector == UUPSUpgradeable.upgradeToAndCall.selector
-                || selector == IModularAccount.installExecution.selector
-                || selector == IModularAccount.uninstallExecution.selector
+                || selector == IERC6900Account.installExecution.selector
+                || selector == IERC6900Account.uninstallExecution.selector
         ) {
             data.module = address(this);
             data.allowGlobalValidation = true;
@@ -39,7 +39,7 @@ abstract contract ModularAccountView is IModularAccountView {
         }
     }
 
-    /// @inheritdoc IModularAccountView
+    /// @inheritdoc IERC6900AccountView
     function getValidationData(ModuleEntity validationFunction)
         external
         view

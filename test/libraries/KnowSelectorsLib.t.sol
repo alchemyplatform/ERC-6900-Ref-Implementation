@@ -5,7 +5,7 @@ import {IAccount} from "@eth-infinitism/account-abstraction/interfaces/IAccount.
 import {IPaymaster} from "@eth-infinitism/account-abstraction/interfaces/IPaymaster.sol";
 import {Test} from "forge-std/Test.sol";
 
-import {IModule} from "../../src/interfaces/IModule.sol";
+import {IERC6900Module} from "../../src/interfaces/IERC6900Module.sol";
 import {KnownSelectorsLib} from "../../src/libraries/KnownSelectorsLib.sol";
 
 contract KnownSelectorsLibTest is Test {
@@ -18,6 +18,6 @@ contract KnownSelectorsLibTest is Test {
     }
 
     function test_isIModuleFunction() public {
-        assertTrue(KnownSelectorsLib.isIModuleFunction(IModule.moduleId.selector));
+        assertTrue(KnownSelectorsLib.isIModuleFunction(IERC6900Module.moduleId.selector));
     }
 }
